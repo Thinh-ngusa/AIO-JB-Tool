@@ -6,7 +6,7 @@ if os.name == "nt":
 
     def get_key():
         key = msvcrt.getch().decode("utf-8", errors="ignore")
-        print(key)
+        print(f"\n{key}")
         return key
 
 else:
@@ -22,7 +22,7 @@ else:
         try:
             tty.setraw(fd)
             key = sys.stdin.read(1)
-            print(key)
+            print(f"\n{key}")
 
         finally:
             termios.tcsetattr(

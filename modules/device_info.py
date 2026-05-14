@@ -1,83 +1,71 @@
+import plistlib
 import subprocess
-import json
-import os
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, "database", "devices.json")
-IDEVICEINFO_PATH = r"C:\libimobiledevice\ideviceinfo.exe"
-
-
-def run_cmd(cmd, timeout=5):
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
-        return result.stdout.strip()
-    except Exception:
-        return ""
-
-
-def load_database():
-    with open(DATABASE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def parse_ideviceinfo(output):
-    info = {}
-
-    for line in output.splitlines():
-        if ": " in line:
-            key, value = line.split(": ", 1)
-            info[key.strip()] = value.strip()
-
-    return info
+from modules.colors import (
+    GREEN,
+    CYAN,
+    WHITE,
+    RESET,
+)
 
 
 def get_device_info():
-    output = run_cmd([IDEVICEINFO_PATH])
+    try:
+        result = subprocess.run(
+            ["ideviceinfo", "-x"],
+            capture_output=True,
+            text=False
+        )
 
-    if not output:
+        if result.returncode != 0:
+            return None
+
+        data = plistlib.loads(result.stdout)
+
+        return {
+            "name": data.get("DeviceName", "Unknown"),
+            "identifier": data.get("ProductType", "Unknown"),
+            "ios": data.get("ProductVersion", "Unknown"),
+            "build": data.get("BuildVersion", "Unknown"),
+            "udid": data.get("UniqueDeviceID", "Unknown"),
+            "active_status": get_activation_status(data),
+        }
+
+    except Exception:
         return None
 
-    raw = parse_ideviceinfo(output)
-    database = load_database()
 
-    identifier = raw.get("ProductType", "Unknown")
-    db = database.get(identifier, {})
+def get_activation_status(data):
+    state = data.get("ActivationState", "")
 
-    return {
-        "identifier": identifier,
-        "name": db.get("name", "Unknown Device"),
-        "chip": db.get("chip", "Unknown"),
-        "checkm8": db.get("checkm8", False),
+    if state.lower() == "activated":
+        return "Activated"
 
-        "ios": raw.get("ProductVersion", "Unknown"),
-        "build": raw.get("BuildVersion", "Unknown"),
-        "device_name": raw.get("DeviceName", "Unknown"),
-        "serial": raw.get("SerialNumber", "Unknown"),
-        "udid": raw.get("UniqueDeviceID", "Unknown")
-    }
+    if state.lower() == "unactivated":
+        return "Unactivated"
+
+    return "Unknown"
 
 
 def print_device_info(device):
-    print("[i] Device detected")
-    print()
-    print(f"Device Name : {device['device_name']}")
-    print(f"Name        : {device['name']}")
-    print(f"Identifier  : {device['identifier']}")
-    print(f"Chip        : {device['chip']}")
-    print(f"checkm8     : {'Yes' if device['checkm8'] else 'No'}")
-    print(f"iOS         : {device['ios']}")
-    print(f"Build       : {device['build']}")
-    print(f"Serial      : {device['serial']}")
-    print(f"UDID        : {device['udid']}")
-    print()
+    print(
+        f"{CYAN}Device{RESET} : "
+        f"{WHITE}{device.get('name', 'Unknown')}{RESET}"
+    )
 
-    if device["checkm8"]:
-        print("[+] This device is supported.")
-    else:
-        print("[-] Sorry, your device is not supported!")
+    print(
+        f"{CYAN}iOS{RESET}    : "
+        f"{WHITE}{device.get('ios', 'Unknown')}{RESET}"
+    )
+
+    print(
+        f"{CYAN}Mode{RESET}   : "
+        f"{GREEN}{device.get('mode', 'Unknown')}{RESET}"
+    )
+
+    active = device.get("active_status", "Unknown")
+
+    print(
+        f"{CYAN}Active{RESET} : "
+        f"{WHITE}{active}{RESET}"
+    )

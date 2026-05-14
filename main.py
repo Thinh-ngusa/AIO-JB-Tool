@@ -1,6 +1,17 @@
 import time
 import os
 
+from modules.colors import (
+    GREEN,
+    RED,
+    YELLOW,
+    CYAN,
+    MAGENTA,
+    WHITE,
+    BRIGHT,
+    RESET,
+)
+
 from modules.device_mode import detect_mode
 from modules.device_info import get_device_info, print_device_info
 from modules.eligibility import check_eligibility, print_recommendation
@@ -16,7 +27,7 @@ from modules.resources import (
 
 
 APP_NAME = "AIO JB Tool"
-VERSION = "0.5"
+VERSION = "1.0"
 TIMEOUT = 60
 
 
@@ -25,8 +36,25 @@ def clear():
 
 
 def print_header():
-    print(f"{APP_NAME} v{VERSION}")
-    print("----------------")
+    print(
+        f"{CYAN}{BRIGHT}"
+        f"AIO JB Tool v{VERSION}"
+        f"{RESET}"
+    )
+
+    print(
+        f"{MAGENTA}"
+        f"by sinszxmc"
+        f"{RESET}"
+    )
+
+    print(
+        f"{WHITE}"
+        f"for A11 and below devices"
+        f"{RESET}"
+    )
+
+    print()
 
 
 def print_startup_banner():
@@ -41,24 +69,29 @@ def startup_checks():
 
     if missing or permission_issues:
         print()
-        print("[!] Resource check failed. Operation aborted.")
+
+        print(
+            f"{RED}[!] Resource check failed. "
+            f"Operation aborted.{RESET}"
+        )
+
         return False
 
     return True
 
 
 def select_option():
-    print("\nSelect option: ", end="", flush=True)
     return get_key()
 
 
-def main_action_menu(eligibility):
+def main_action_menu(device, eligibility):
     while True:
         print()
-        print("[1] Jailbreak")
-        print("[2] Utilities")
-        print("[3] Eject Device")
-        print("[0] Refresh")
+
+        print(f"{CYAN}[1]{RESET} Jailbreak")
+        print(f"{CYAN}[2]{RESET} Utilities")
+        print(f"{CYAN}[3]{RESET} Eject Device")
+        print(f"{CYAN}[0]{RESET} Refresh")
 
         choice = select_option()
 
@@ -68,29 +101,41 @@ def main_action_menu(eligibility):
 
                 if result == "RESET":
                     return "RESET"
+
             else:
-                print("[!] This device is not supported.")
+                print(
+                    f"{RED}[!] This device is not supported.{RESET}"
+                )
 
         elif choice == "2":
-            utilities_menu()
+            utilities_menu(device)
 
         elif choice == "3":
             os.system("idevicepair unpair")
-            print("[+] Device ejected.")
+
+            print(
+                f"{GREEN}[+] Device ejected.{RESET}"
+            )
+
             return "RESET"
 
         elif choice == "0":
             return "RESET"
 
         else:
-            print("[!] Invalid option.")
+            print(
+                f"{YELLOW}[!] Invalid option.{RESET}"
+            )
 
 
 def handle_normal_mode():
     device = get_device_info()
 
     if not device:
-        print("[!] Could not get device info.")
+        print(
+            f"{RED}[!] Could not get device info.{RESET}"
+        )
+
         return
 
     device["mode"] = "NORMAL"
@@ -98,33 +143,50 @@ def handle_normal_mode():
     print_device_info(device)
 
     eligibility = check_eligibility(device)
+
     print_recommendation(eligibility)
 
-    return main_action_menu(eligibility)
+    return main_action_menu(device, eligibility)
 
 
 def handle_recovery_mode():
-    print("[*] Recovery mode detected.")
-    print("[*] Available actions:")
-    print("    - Exit Recovery")
-    print("    - Enter DFU")
+    print(
+        f"{YELLOW}[*] Recovery mode detected.{RESET}"
+    )
+
+    print(
+        f"{WHITE}"
+        f"Device is ready for recovery operations."
+        f"{RESET}"
+    )
 
 
 def handle_dfu_mode():
-    print("[*] DFU mode detected.")
-    print("[*] Device is ready for palera1n/checkm8 operations.")
+    print(
+        f"{MAGENTA}[*] DFU mode detected.{RESET}"
+    )
+
+    print(
+        f"{WHITE}"
+        f"Device is ready for checkm8 and restore operations."
+        f"{RESET}"
+    )
 
 
 def main():
     clear()
+
     print_startup_banner()
 
     if not startup_checks():
         return
 
-    print("[*] Waiting for device...")
+    print(
+        f"{CYAN}[*] Waiting for device...{RESET}"
+    )
 
     start_time = time.time()
+
     last_mode = None
     device_shown = False
 
@@ -134,9 +196,22 @@ def main():
         if mode:
             if mode != last_mode:
                 clear()
+
                 print_startup_banner()
 
-                print(f"[+] Device connected in {mode} mode")
+                mode_color = GREEN
+
+                if mode == "RECOVERY":
+                    mode_color = YELLOW
+
+                elif mode == "DFU":
+                    mode_color = MAGENTA
+
+                print(
+                    f"{mode_color}[+] Device connected "
+                    f"in {mode} mode{RESET}"
+                )
+
                 print()
 
                 if mode == "NORMAL":
@@ -153,7 +228,10 @@ def main():
                     handle_dfu_mode()
 
                 else:
-                    print(f"[!] Unknown mode detected: {mode}")
+                    print(
+                        f"{YELLOW}[!] Unknown mode detected: "
+                        f"{mode}{RESET}"
+                    )
 
                 last_mode = mode
                 device_shown = True
@@ -161,11 +239,18 @@ def main():
         else:
             if device_shown:
                 clear()
+
                 print_startup_banner()
 
-                print("[-] Device disconnected")
+                print(
+                    f"{RED}[-] Device disconnected{RESET}"
+                )
+
                 print()
-                print("[*] Waiting for device...")
+
+                print(
+                    f"{CYAN}[*] Waiting for device...{RESET}"
+                )
 
                 device_shown = False
                 last_mode = None
@@ -173,7 +258,12 @@ def main():
 
             elif time.time() - start_time > TIMEOUT:
                 print()
-                print("[!] No device detected, operation aborted.")
+
+                print(
+                    f"{YELLOW}[!] No device detected, "
+                    f"operation aborted.{RESET}"
+                )
+
                 break
 
         time.sleep(1)

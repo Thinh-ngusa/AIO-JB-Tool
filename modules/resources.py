@@ -2,6 +2,14 @@ import os
 import platform
 import shutil
 import subprocess
+from modules.colors import (
+    GREEN,
+    RED,
+    YELLOW,
+    CYAN,
+    WHITE,
+    RESET,
+)
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -199,21 +207,29 @@ def get_palera1n_binary():
 
 
 def print_palera1n_notice():
+   def print_palera1n_notice():
     binary = get_palera1n_binary()
 
     if binary:
-        print("[+] palera1n: Available")
+        print(
+            f"{GREEN}[+] palera1n: Available{RESET}"
+        )
+
         print(f"    {binary}")
+
         return
 
-    print("[!] palera1n: Not installed")
     print(
-        "    palera1n is highly recommended for the best compatibility "
-        "and full functionality of this tool."
+        f"{YELLOW}[!] palera1n: Not installed{RESET}"
+    )
+
+    print(
+        "    palera1n is highly recommended "
+        "for the best compatibility and "
+        "full functionality of this tool."
     )
 
     print(f"    {PALERA1N_INSTALL_COMMAND}")
-
 
 def install_palera1n():
     if shutil.which("palera1n"):
@@ -247,21 +263,29 @@ def install_palera1n():
 # =========================
 
 def print_resource_report():
-    print()
-    print("Resources")
-    print("---------")
+    print(f"{CYAN}Resources{RESET}")
+    print(f"{CYAN}---------{RESET}")
 
     for name, path in REQUIRED_RESOURCES.items():
         if file_exists(path):
-            print(f"[+] {name}: OK")
+            print(
+                f"{GREEN}[+] {name}: OK{RESET}"
+            )
+
         else:
-            print(f"[!] {name}: Missing")
+            print(
+                f"{RED}[!] {name}: Missing{RESET}"
+            )
+
             print(f"    {path}")
 
     permission_issues = check_resource_permissions()
 
     for name, path in permission_issues:
-        print(f"[!] {name}: Not executable")
+        print(
+            f"{YELLOW}[!] {name}: Not executable{RESET}"
+        )
+
         print(f"    chmod +x {path}")
 
     print_palera1n_notice()
