@@ -4,6 +4,7 @@ import os
 from modules.device_mode import detect_mode
 from modules.device_info import get_device_info, print_device_info
 from modules.eligibility import check_eligibility, print_recommendation
+from modules.jailbreak_actions import start_jailbreak_flow
 
 from modules.resources import (
     check_resources,
@@ -57,6 +58,9 @@ def handle_normal_mode():
 
     eligibility = check_eligibility(device)
     print_recommendation(eligibility)
+
+    if eligibility.get("is_supported"):
+        start_jailbreak_flow(eligibility)
 
 
 def handle_recovery_mode():

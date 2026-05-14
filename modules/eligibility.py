@@ -19,6 +19,10 @@ def ios_lt(current, target):
     return parse_ios(current) < parse_ios(target)
 
 
+def ios_gt(current, target):
+    return parse_ios(current) > parse_ios(target)
+
+
 IPHONE_8_X = {
     "iPhone10,1",
     "iPhone10,2",
@@ -68,6 +72,7 @@ def check_eligibility(device):
 
     result = {
         "is_supported": False,
+        "group": None,
         "supported_methods": [],
         "recommendation": None,
     }
@@ -85,57 +90,62 @@ def check_eligibility(device):
         )
         return result
 
-    # iPhone 8 / 8 Plus / X
-    if identifier in IPHONE_8_X:
+    # GROUP A: iPhone 8/X > 16.6.1
+    if identifier in IPHONE_8_X and ios_gt(ios, "16.6.1"):
         result["is_supported"] = True
-
-        if ios_lte(ios, "16.6.1"):
-            result["supported_methods"] = [
-                "Dopamine roothide",
-                "Dopamine rootless",
-                "palera1n rootless",
-            ]
-
-            result["recommendation"] = (
-                "We highly recommend using Dopamine roothide "
-                "for better usability and overall effectiveness."
-            )
-
-        else:
-            result["supported_methods"] = [
-                "Dopamine roothide",
-                "palera1n rootless",
-            ]
-
-            result["recommendation"] = (
-                "We recommend using palera1n rootless on this iOS version "
-                "for the best stability and compatibility."
-            )
-
+        result["group"] = "A"
+        result["supported_methods"] = [
+            "palera1n rootless",
+            "Dopamine roothide",
+        ]
+        result["recommendation"] = (
+            "We highly recommend using palera1n rootless on this iOS version "
+            "for the best stability and compatibility."
+        )
         return result
 
-    # iPhone 7 / 7 Plus and below
-    if identifier in IPHONE_7_BELOW:
+    # GROUP B: iPhone 8/X <= 16.6.1
+    if identifier in IPHONE_8_X and ios_lte(ios, "16.6.1"):
         result["is_supported"] = True
-
-        if ios_lt(ios, "15.8.7"):
-            result["supported_methods"] = [
-                "Dopamine roothide",
-                "Dopamine rootless",
-                "palera1n rootless",
-            ]
-
-        else:
-            result["supported_methods"] = [
-                "Dopamine roothide",
-                "palera1n rootless",
-            ]
-
+        result["group"] = "B"
+        result["supported_methods"] = [
+            "palera1n rootless",
+            "Dopamine rootless",
+            "Dopamine roothide",
+        ]
         result["recommendation"] = (
             "We highly recommend using Dopamine roothide "
-            "for better usability and overall effectiveness."
+            "for the best user experience and overall effectiveness."
         )
+        return result
 
+    # GROUP B: iPhone 7 and below < 15.8.7
+    if identifier in IPHONE_7_BELOW and ios_lt(ios, "15.8.7"):
+        result["is_supported"] = True
+        result["group"] = "B"
+        result["supported_methods"] = [
+            "palera1n rootless",
+            "Dopamine rootless",
+            "Dopamine roothide",
+        ]
+        result["recommendation"] = (
+            "We highly recommend using Dopamine roothide "
+            "for the best user experience and overall effectiveness."
+        )
+        return result
+
+    # GROUP C: iPhone 7 and below >= 15.8.7
+    if identifier in IPHONE_7_BELOW:
+        result["is_supported"] = True
+        result["group"] = "C"
+        result["supported_methods"] = [
+            "palera1n rootless",
+            "Dopamine roothide",
+        ]
+        result["recommendation"] = (
+            "We highly recommend using Dopamine roothide "
+            "for the best user experience and overall effectiveness."
+        )
         return result
 
     result["recommendation"] = (
