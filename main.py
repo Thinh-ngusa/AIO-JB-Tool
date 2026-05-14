@@ -5,6 +5,8 @@ from modules.device_mode import detect_mode
 from modules.device_info import get_device_info, print_device_info
 from modules.eligibility import check_eligibility, print_recommendation
 from modules.jailbreak_actions import start_jailbreak_flow
+from modules.utilities import utilities_menu
+from modules.key_input import get_key
 
 from modules.resources import (
     check_resources,
@@ -45,6 +47,45 @@ def startup_checks():
     return True
 
 
+def select_option():
+    print("\nSelect option: ", end="", flush=True)
+    return get_key()
+
+
+def main_action_menu(eligibility):
+    while True:
+        print()
+        print("[1] Jailbreak")
+        print("[2] Utilities")
+        print("[3] Eject Device")
+        print("[0] Refresh")
+
+        choice = select_option()
+
+        if choice == "1":
+            if eligibility.get("is_supported"):
+                result = start_jailbreak_flow(eligibility)
+
+                if result == "RESET":
+                    return "RESET"
+            else:
+                print("[!] This device is not supported.")
+
+        elif choice == "2":
+            utilities_menu()
+
+        elif choice == "3":
+            os.system("idevicepair unpair")
+            print("[+] Device ejected.")
+            return "RESET"
+
+        elif choice == "0":
+            return "RESET"
+
+        else:
+            print("[!] Invalid option.")
+
+
 def handle_normal_mode():
     device = get_device_info()
 
@@ -57,14 +98,9 @@ def handle_normal_mode():
     print_device_info(device)
 
     eligibility = check_eligibility(device)
-
     print_recommendation(eligibility)
 
-    if eligibility.get("is_supported"):
-        result = start_jailbreak_flow(eligibility)
-
-        if result == "RESET":
-            return "RESET"
+    return main_action_menu(eligibility)
 
 
 def handle_recovery_mode():
@@ -81,7 +117,6 @@ def handle_dfu_mode():
 
 def main():
     clear()
-
     print_startup_banner()
 
     if not startup_checks():
@@ -90,7 +125,6 @@ def main():
     print("[*] Waiting for device...")
 
     start_time = time.time()
-
     last_mode = None
     device_shown = False
 
@@ -100,7 +134,6 @@ def main():
         if mode:
             if mode != last_mode:
                 clear()
-
                 print_startup_banner()
 
                 print(f"[+] Device connected in {mode} mode")
@@ -128,7 +161,6 @@ def main():
         else:
             if device_shown:
                 clear()
-
                 print_startup_banner()
 
                 print("[-] Device disconnected")
