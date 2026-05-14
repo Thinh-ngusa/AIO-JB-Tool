@@ -57,10 +57,14 @@ def handle_normal_mode():
     print_device_info(device)
 
     eligibility = check_eligibility(device)
+
     print_recommendation(eligibility)
 
     if eligibility.get("is_supported"):
-        start_jailbreak_flow(eligibility)
+        result = start_jailbreak_flow(eligibility)
+
+        if result == "RESET":
+            return "RESET"
 
 
 def handle_recovery_mode():
@@ -77,6 +81,7 @@ def handle_dfu_mode():
 
 def main():
     clear()
+
     print_startup_banner()
 
     if not startup_checks():
@@ -85,6 +90,7 @@ def main():
     print("[*] Waiting for device...")
 
     start_time = time.time()
+
     last_mode = None
     device_shown = False
 
@@ -94,13 +100,18 @@ def main():
         if mode:
             if mode != last_mode:
                 clear()
+
                 print_startup_banner()
 
                 print(f"[+] Device connected in {mode} mode")
                 print()
 
                 if mode == "NORMAL":
-                    handle_normal_mode()
+                    result = handle_normal_mode()
+
+                    if result == "RESET":
+                        last_mode = None
+                        continue
 
                 elif mode == "RECOVERY":
                     handle_recovery_mode()
@@ -117,6 +128,7 @@ def main():
         else:
             if device_shown:
                 clear()
+
                 print_startup_banner()
 
                 print("[-] Device disconnected")

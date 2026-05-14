@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from modules.key_input import get_key
+
 from modules.resources import (
     DOPAHIDE_IPA,
     DOPALESS_IPA,
@@ -22,7 +24,13 @@ def run_command(cmd, cwd=None):
 
 
 def pause():
-    input("\nPress Enter to continue...")
+    input("\nPress Enter to return to main menu...")
+    return "MAIN_MENU"
+
+
+def select_option():
+    print("\nSelect option: ", end="", flush=True)
+    return get_key()
 
 
 def print_jailbreak_notes():
@@ -47,11 +55,16 @@ def run_palera1n_force_revert():
         return
 
     print("[*] Running palera1n force-revert...")
+
     ok = run_command([palera1n, "--force-revert", "-lv"])
 
     if ok:
         print()
-        print("Done. Please reboot your device once more to complete the force-revert process.")
+        print(
+            "Done. Please reboot your device once more "
+            "to complete the force-revert process."
+        )
+
     else:
         print("[!] palera1n force-revert failed.")
 
@@ -64,11 +77,16 @@ def run_palera1n_rootless():
         return
 
     print("[*] Running palera1n rootless...")
+
     ok = run_command([palera1n, "-lv"])
 
     if ok:
         print()
-        print("Done. Please install Sileo/Zebra via palera1n Loader and enjoy.")
+        print(
+            "Done. Please install Sileo/Zebra "
+            "via palera1n Loader and enjoy."
+        )
+
     else:
         print("[!] palera1n failed.")
 
@@ -82,7 +100,7 @@ def palera1n_menu():
         print("[2] Run palera1n rootless")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
             print()
@@ -90,12 +108,17 @@ def palera1n_menu():
                 "Use this when you want to remove an old palera1n jailbreak "
                 "environment, including rootful or rootless."
             )
+
             run_palera1n_force_revert()
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "2":
             run_palera1n_rootless()
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "0":
             return
@@ -131,7 +154,10 @@ def run_palehide():
 
     print("[*] Running palehide...")
 
-    return run_command(["bash", PALEHIDE_SCRIPT], cwd=PALEHIDE_DIR)
+    return run_command(
+        ["bash", PALEHIDE_SCRIPT],
+        cwd=PALEHIDE_DIR
+    )
 
 
 def dopamine_trollrestore_flow(ipa_path):
@@ -148,6 +174,7 @@ def dopamine_trollrestore_flow(ipa_path):
         print("Done. Your device will now reboot.")
         print("After reboot, open Tips to install TrollStore.")
         print("Then install Dopamine normally via TrollStore.")
+
     else:
         print("[!] TrollRestore failed.")
 
@@ -164,7 +191,11 @@ def dopamine_palehide_flow():
     if palehide_ok:
         print()
         print("Done. Please install Dopamine via TrollStore.")
-        print("You may need to run this again when your device is rebooted.")
+        print(
+            "You may need to run this again "
+            "when your device is rebooted."
+        )
+
     else:
         print("[!] palehide failed.")
 
@@ -178,15 +209,19 @@ def dopamine_menu_group_b():
         print("[2] Roothide")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
             dopamine_trollrestore_flow(DOPALESS_IPA)
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "2":
             dopamine_trollrestore_flow(DOPAHIDE_IPA)
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "0":
             return
@@ -204,14 +239,19 @@ def jailbreak_menu_group_a():
         print("[2] Dopamine roothide")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
-            palera1n_menu()
+            result = palera1n_menu()
+
+            if result == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "2":
             dopamine_palehide_flow()
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "0":
             return
@@ -229,13 +269,19 @@ def jailbreak_menu_group_b():
         print("[2] Dopamine")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
-            palera1n_menu()
+            result = palera1n_menu()
+
+            if result == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "2":
-            dopamine_menu_group_b()
+            result = dopamine_menu_group_b()
+
+            if result == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "0":
             return
@@ -253,14 +299,19 @@ def jailbreak_menu_group_c():
         print("[2] Dopamine roothide")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
-            palera1n_menu()
+            result = palera1n_menu()
+
+            if result == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "2":
             dopamine_trollrestore_flow(DOPAHIDE_IPA)
-            pause()
+
+            if pause() == "MAIN_MENU":
+                return "MAIN_MENU"
 
         elif choice == "0":
             return
@@ -284,25 +335,32 @@ def start_jailbreak_flow(eligibility):
         print("[2] Eject device")
         print("[0] Back")
 
-        choice = input("\nSelect option: ").strip()
+        choice = select_option()
 
         if choice == "1":
             if group == "A":
-                jailbreak_menu_group_a()
+                result = jailbreak_menu_group_a()
+
             elif group == "B":
-                jailbreak_menu_group_b()
+                result = jailbreak_menu_group_b()
+
             elif group == "C":
-                jailbreak_menu_group_c()
+                result = jailbreak_menu_group_c()
+
             else:
                 print("[!] Unknown jailbreak group.")
+                return
+
+            if result == "MAIN_MENU":
+                return "RESET"
 
         elif choice == "2":
             run_command(["idevicepair", "unpair"])
             print("[+] Device ejected.")
-            return
+            return "RESET"
 
         elif choice == "0":
-            return
+            return "RESET"
 
         else:
             print("[!] Invalid option.")
