@@ -30,22 +30,34 @@ if ! command -v ideviceinstaller &> /dev/null; then
     echo "[!] ideviceinstaller not found in PATH."
     echo "[*] Attempting to install libimobiledevice..."
     
+    # Check and install Homebrew if needed
+    if ! command -v brew &> /dev/null; then
+        echo "[!] Homebrew not found. Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Verify brew installation
+        if ! command -v brew &> /dev/null; then
+            echo "[!] Failed to install Homebrew."
+            echo "[*] Please install manually: https://brew.sh"
+            exit 1
+        fi
+        echo "[+] Homebrew installed successfully."
+    fi
+    
+    # Now install libimobiledevice
     if command -v brew &> /dev/null; then
-        echo "[*] Found Homebrew. Installing libimobiledevice..."
+        echo "[*] Installing libimobiledevice via Homebrew..."
         brew install libimobiledevice
         
         if command -v ideviceinstaller &> /dev/null; then
             echo "[+] ideviceinstaller installed successfully."
         else
-            echo "[!] Installation failed. Please install manually:"
+            echo "[!] Installation failed. Please check:"
             echo "    https://github.com/libimobiledevice/libimobiledevice"
         fi
     else
-        echo "[!] Homebrew not found. Please install libimobiledevice manually:"
+        echo "[!] Homebrew installation failed. Please install libimobiledevice manually:"
         echo "    https://github.com/libimobiledevice/libimobiledevice"
-        echo
-        echo "[*] On macOS with Homebrew: brew install libimobiledevice"
-        echo "[*] On Linux: sudo apt-get install libimobiledevice-utils"
     fi
 else
     echo "[+] ideviceinstaller found at: $(command -v ideviceinstaller)"
