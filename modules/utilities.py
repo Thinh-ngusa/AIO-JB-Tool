@@ -250,26 +250,27 @@ def utilities_menu(device):
 
         if choice == "1":
             dfu_helper()
-            pause()
+            return "RESET"
 
         elif choice == "2":
             exit_dfu_help(device)
+            return "RESET"
 
         elif choice == "3":
             enter_recovery()
-            pause()
+            return "RESET"
 
         elif choice == "4":
             exit_recovery()
-            pause()
+            return "RESET"
 
         elif choice == "5":
             reboot_device()
-            pause()
+            return "RESET"
 
         elif choice == "6":
             bootstrap_8x_dopamine(device)
-            pause()
+            return "RESET"
 
         elif choice == "7":
             open_readme()
