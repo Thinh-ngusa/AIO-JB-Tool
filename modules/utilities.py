@@ -2,7 +2,11 @@ import subprocess
 import shutil
 
 from modules.key_input import get_key
-from modules.resources import get_palera1n_binary
+from modules.resources import (
+    get_palera1n_binary,
+    PALEHIDE_DIR,
+    PALEHIDE_SCRIPT,
+)
 
 from modules.colors import (
     GREEN,
@@ -32,9 +36,9 @@ IPHONE_7 = {
 }
 
 
-def run_command(cmd):
+def run_command(cmd, cwd=None):
     try:
-        result = subprocess.run(cmd)
+        result = subprocess.run(cmd, cwd=cwd)
         return result.returncode == 0
 
     except Exception as error:
@@ -56,98 +60,63 @@ def select_option():
 
 def reboot_device():
     if not command_exists("idevicediagnostics"):
-        print(
-            f"{RED}[!] idevicediagnostics is not installed.{RESET}"
-        )
-
+        print(f"{RED}[!] idevicediagnostics is not installed.{RESET}")
         return
 
-    print(
-        f"{CYAN}[*] Rebooting device...{RESET}"
-    )
+    print(f"{CYAN}[*] Rebooting device...{RESET}")
 
     ok = run_command(["idevicediagnostics", "restart"])
 
     if ok:
-        print(
-            f"{GREEN}[+] Reboot command sent.{RESET}"
-        )
-
+        print(f"{GREEN}[+] Reboot command sent.{RESET}")
     else:
-        print(
-            f"{RED}[!] Failed to reboot device.{RESET}"
-        )
+        print(f"{RED}[!] Failed to reboot device.{RESET}")
 
 
 def enter_recovery():
     palera1n = get_palera1n_binary()
 
     if not palera1n:
-        print(
-            f"{RED}[!] palera1n is not available.{RESET}"
-        )
-
+        print(f"{RED}[!] palera1n is not available.{RESET}")
         return
 
-    print(
-        f"{CYAN}[*] Entering Recovery mode...{RESET}"
-    )
+    print(f"{CYAN}[*] Entering Recovery mode...{RESET}")
 
     ok = run_command([palera1n, "-E"])
 
     if ok:
-        print(
-            f"{GREEN}[+] Recovery command sent.{RESET}"
-        )
-
+        print(f"{GREEN}[+] Recovery command sent.{RESET}")
     else:
-        print(
-            f"{RED}[!] Failed to enter Recovery mode.{RESET}"
-        )
+        print(f"{RED}[!] Failed to enter Recovery mode.{RESET}")
 
 
 def exit_recovery():
     palera1n = get_palera1n_binary()
 
     if not palera1n:
-        print(
-            f"{RED}[!] palera1n is not available.{RESET}"
-        )
-
+        print(f"{RED}[!] palera1n is not available.{RESET}")
         return
 
-    print(
-        f"{CYAN}[*] Exiting Recovery mode...{RESET}"
-    )
+    print(f"{CYAN}[*] Exiting Recovery mode...{RESET}")
 
     ok = run_command([palera1n, "-n"])
 
     if ok:
-        print(
-            f"{GREEN}[+] Exit Recovery command sent.{RESET}"
-        )
-
+        print(f"{GREEN}[+] Exit Recovery command sent.{RESET}")
     else:
-        print(
-            f"{RED}[!] Failed to exit Recovery mode.{RESET}"
-        )
+        print(f"{RED}[!] Failed to exit Recovery mode.{RESET}")
 
 
 def dfu_helper():
     palera1n = get_palera1n_binary()
 
     if not palera1n:
-        print(
-            f"{RED}[!] palera1n is not available.{RESET}"
-        )
-
+        print(f"{RED}[!] palera1n is not available.{RESET}")
         return
 
     print()
-
     print(f"{MAGENTA}DFU Helper{RESET}")
     print(f"{MAGENTA}----------{RESET}")
-
     print(
         f"{WHITE}"
         f"For 3rd-party software, checkm8 tools, "
@@ -156,32 +125,22 @@ def dfu_helper():
     )
 
     print()
-
-    print(
-        f"{CYAN}[*] Launching palera1n DFU helper...{RESET}"
-    )
+    print(f"{CYAN}[*] Launching palera1n DFU helper...{RESET}")
 
     ok = run_command([palera1n, "-D"])
 
     if ok:
-        print(
-            f"{GREEN}[+] DFU helper finished.{RESET}"
-        )
-
+        print(f"{GREEN}[+] DFU helper finished.{RESET}")
     else:
-        print(
-            f"{RED}[!] DFU helper failed.{RESET}"
-        )
+        print(f"{RED}[!] DFU helper failed.{RESET}")
 
 
 def exit_dfu_help(device):
     identifier = device.get("identifier")
 
     print()
-
     print(f"{MAGENTA}Exit DFU{RESET}")
     print(f"{MAGENTA}--------{RESET}")
-
     print()
 
     if identifier in IPHONE_8_X:
@@ -197,15 +156,55 @@ def exit_dfu_help(device):
         print("Hold Power + Home")
         print("until the Apple logo appears.")
 
-    input(
-        f"\n{CYAN}Press Enter to exit DFU helper...{RESET}"
+    input(f"\n{CYAN}Press Enter to exit DFU helper...{RESET}")
+
+
+def run_palehide():
+    if not PALEHIDE_SCRIPT:
+        print(f"{RED}[!] palehide script path is missing.{RESET}")
+        return False
+
+    print(f"{CYAN}[*] Running palehide bootstrap...{RESET}")
+
+    return run_command(
+        ["bash", PALEHIDE_SCRIPT],
+        cwd=PALEHIDE_DIR
     )
+
+
+def bootstrap_8x_dopamine(device):
+    identifier = device.get("identifier")
+
+    if identifier not in IPHONE_8_X:
+        print(
+            f"{YELLOW}[!] This option is intended for iPhone 8 / 8 Plus / X only.{RESET}"
+        )
+        return
+
+    print()
+    print(f"{MAGENTA}Bootstrap for 8/X using Dopamine{RESET}")
+    print(f"{MAGENTA}--------------------------------{RESET}")
+    print()
+    print(f"{WHITE}This will run palehide bootstrap for Dopamine.{RESET}")
+    print()
+
+    palehide_ok = run_palehide()
+
+    if palehide_ok:
+        print()
+        print(f"{GREEN}Done. Bootstrap completed.{RESET}")
+        print(
+            f"{WHITE}"
+            f"You may need to run this again after reboot."
+            f"{RESET}"
+        )
+    else:
+        print(f"{RED}[!] palehide bootstrap failed.{RESET}")
 
 
 def utilities_menu(device):
     while True:
         print()
-
         print(f"{CYAN}Utilities{RESET}")
         print(f"{CYAN}---------{RESET}")
 
@@ -214,6 +213,7 @@ def utilities_menu(device):
         print(f"{CYAN}[3]{RESET} Enter Recovery")
         print(f"{CYAN}[4]{RESET} Exit Recovery")
         print(f"{CYAN}[5]{RESET} Reboot Device")
+        print(f"{CYAN}[6]{RESET} Bootstrap for 8/X using Dopamine")
         print(f"{CYAN}[0]{RESET} Back")
 
         choice = select_option()
@@ -237,10 +237,12 @@ def utilities_menu(device):
             reboot_device()
             pause()
 
+        elif choice == "6":
+            bootstrap_8x_dopamine(device)
+            pause()
+
         elif choice == "0":
             return
 
         else:
-            print(
-                f"{YELLOW}[!] Invalid option.{RESET}"
-            )
+            print(f"{YELLOW}[!] Invalid option.{RESET}")
