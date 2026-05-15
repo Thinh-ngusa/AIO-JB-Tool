@@ -170,4 +170,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        print()
+        print(
+            f"{CYAN}Thank you for using AIO JB Tool.{RESET}"
+        )
