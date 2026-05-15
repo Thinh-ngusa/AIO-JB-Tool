@@ -59,34 +59,19 @@ else
 fi
 
 echo
-echo "[*] Checking system dependencies..."
+echo "[*] Installing dependencies..."
 
-echo "[*] Installing libimobiledevice..."
-brew install libimobiledevice || true
-
-echo "[*] Installing ideviceinstaller..."
-
-brew tap libimobiledevice/homebrew-libimobiledevice || true
-brew install ideviceinstaller || true
-
-if command -v ideviceinstaller &> /dev/null; then
-    echo "[+] ideviceinstaller found at: $(command -v ideviceinstaller)"
-else
-    echo "[!] ideviceinstaller is still not available."
-    echo "[*] Try manually:"
-    echo "    brew install --HEAD ideviceinstaller"
-fi
+brew install libimobiledevice
+brew install usbmuxd
+brew install libirecovery
+brew install ifuse
 
 echo
-echo "[*] Checking useful tools..."
+echo "[*] Installing macFUSE..."
 
-for tool in idevice_id ideviceinfo idevicepair; do
-    if command -v "$tool" &> /dev/null; then
-        echo "[+] $tool found"
-    else
-        echo "[!] $tool not found"
-    fi
-done
+brew install --cask macfuse
+
+brew services restart usbmuxd
 
 echo
 echo "[*] Setting executable permissions..."
