@@ -2,6 +2,26 @@
 
 A lightweight jailbreak utility for A11 and below devices.
 
+## Installation
+
+```bash
+sudo bash install.sh
+```
+
+Or clone and run:
+
+```bash
+git clone https://github.com/Thinh-ngusa/AIO-JB-Tool.git
+cd AIO-JB-Tool
+sudo bash install.sh
+```
+
+After installation, run anytime with:
+
+```bash
+aiojb
+```
+
 ## Features
 
 - Device detection
