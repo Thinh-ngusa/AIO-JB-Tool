@@ -24,6 +24,23 @@ else
 fi
 
 echo
+echo "[*] Checking system dependencies..."
+
+if ! command -v ideviceinstaller &> /dev/null; then
+    echo "[!] ideviceinstaller not found."
+    echo "[*] Installing libimobiledevice (includes ideviceinstaller)..."
+    
+    if command -v brew &> /dev/null; then
+        brew install libimobiledevice
+    else
+        echo "[!] Homebrew not found. Please install libimobiledevice manually:"
+        echo "    https://github.com/libimobiledevice/libimobiledevice"
+    fi
+else
+    echo "[+] ideviceinstaller found."
+fi
+
+echo
 echo "[*] Setting executable permissions..."
 
 chmod +x resources/scripts/palehide-beta7/palehide.sh

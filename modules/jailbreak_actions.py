@@ -191,6 +191,31 @@ def install_ipa(ipa_path):
 
         return False
 
+    # Check if ideviceinstaller is available
+    try:
+        result = subprocess.run(
+            ["ideviceinstaller", "--help"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if result.returncode != 0:
+            raise FileNotFoundError
+    except (FileNotFoundError, Exception):
+        print(
+            f"{RED}[!] ideviceinstaller is not installed.{RESET}"
+        )
+        print(
+            f"{YELLOW}[*] Install it with:{RESET}"
+        )
+        print(
+            f"{WHITE}    brew install libimobiledevice{RESET}"
+        )
+        print()
+        print(
+            f"{YELLOW}[*] Note: This is required for both Roothide and Rootless.{RESET}"
+        )
+        return False
+
     print(
         f"{CYAN}[*] Installing IPA:{RESET} "
         f"{WHITE}{ipa_path}{RESET}"

@@ -55,6 +55,20 @@ def run_command(cmd, timeout=8):
         return ""
 
 
+def check_tool_available(tool_name):
+    """Check if a command-line tool is available."""
+    try:
+        result = subprocess.run(
+            [tool_name, "--help"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        )
+        return result.returncode == 0
+    except (FileNotFoundError, Exception):
+        return False
+
+
 def parse_ios(v):
     parts = []
 
@@ -86,6 +100,10 @@ def has_any(text, keywords):
 
 
 def get_installed_apps_text():
+    # Check if ideviceinstaller is available
+    if not check_tool_available("ideviceinstaller"):
+        return ""
+
     outputs = []
 
     commands = [
