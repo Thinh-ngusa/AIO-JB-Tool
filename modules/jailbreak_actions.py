@@ -198,26 +198,46 @@ def install_ipa(ipa_path):
     )
 
     try:
-        result = run_command([
-            "ideviceinstaller",
-            "-i",
-            ipa_path
-        ])
+        result = subprocess.run(
+            ["ideviceinstaller", "-i", ipa_path],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
         
-        if result:
+        if result.returncode == 0:
+            print(f"{GREEN}[+] IPA installed successfully.{RESET}")
             return True
         else:
             print()
             print(
                 f"{RED}[!] IPA installation failed.{RESET}"
             )
+            
+            # Show stderr if available
+            if result.stderr:
+                print()
+                print(f"{YELLOW}Error details:{RESET}")
+                print(f"{WHITE}{result.stderr.strip()}{RESET}")
+            
+            print()
             print(
-                f"{YELLOW}[*] Make sure ideviceinstaller is installed:{RESET}"
+                f"{YELLOW}[*] Troubleshooting:{RESET}"
             )
             print(
-                f"{WHITE}    brew install libimobiledevice{RESET}"
+                f"{WHITE}1. Is the device connected and trusted?{RESET}"
+            )
+            print(
+                f"{WHITE}2. Unlock the device{RESET}"
+            )
+            print(
+                f"{WHITE}3. Make sure ideviceinstaller is installed:{RESET}"
+            )
+            print(
+                f"{WHITE}   brew install libimobiledevice{RESET}"
             )
             return False
+            
     except FileNotFoundError:
         print()
         print(
@@ -233,6 +253,21 @@ def install_ipa(ipa_path):
         print()
         print(
             f"{YELLOW}[*] After installation, restart the terminal and try again.{RESET}"
+        )
+        return False
+    except subprocess.TimeoutExpired:
+        print()
+        print(
+            f"{RED}[!] Installation timed out (60 seconds).{RESET}"
+        )
+        print(
+            f"{YELLOW}[*] Try again or check device connection.{RESET}"
+        )
+        return False
+    except Exception as error:
+        print()
+        print(
+            f"{RED}[!] Unexpected error: {error}{RESET}"
         )
         return False
 
