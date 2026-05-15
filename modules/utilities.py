@@ -276,7 +276,7 @@ def utilities_menu(device):
             return "RESET"
 
         elif choice == "0":
-            return
+            return "RESET"
 
         else:
             print(f"{YELLOW}[!] Invalid option.{RESET}")
