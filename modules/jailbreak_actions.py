@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 
 from modules.key_input import get_key
 
@@ -191,19 +192,21 @@ def install_ipa(ipa_path):
 
         return False
 
-    # Check if ideviceinstaller is available
+    # Check if ideviceinstaller is available (try to run it)
     try:
         result = subprocess.run(
             ["ideviceinstaller", "--help"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            timeout=2,
         )
         if result.returncode != 0:
             raise FileNotFoundError
-    except (FileNotFoundError, Exception):
+    except (FileNotFoundError, subprocess.TimeoutExpired, Exception):
         print(
-            f"{RED}[!] ideviceinstaller is not installed.{RESET}"
+            f"{RED}[!] ideviceinstaller is not available or not responding.{RESET}"
         )
+        print()
         print(
             f"{YELLOW}[*] Install it with:{RESET}"
         )
@@ -212,7 +215,11 @@ def install_ipa(ipa_path):
         )
         print()
         print(
-            f"{YELLOW}[*] Note: This is required for both Roothide and Rootless.{RESET}"
+            f"{YELLOW}[*] Required for both Dopamine Roothide and Rootless.{RESET}"
+        )
+        print()
+        print(
+            f"{YELLOW}[*] If already installed, restart terminal/app and try again.{RESET}"
         )
         return False
 

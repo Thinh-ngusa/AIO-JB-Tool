@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 
 
 IPHONE_8_X = {
@@ -56,17 +57,8 @@ def run_command(cmd, timeout=8):
 
 
 def check_tool_available(tool_name):
-    """Check if a command-line tool is available."""
-    try:
-        result = subprocess.run(
-            [tool_name, "--help"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=2,
-        )
-        return result.returncode == 0
-    except (FileNotFoundError, Exception):
-        return False
+    """Check if a command-line tool is available in PATH."""
+    return shutil.which(tool_name) is not None
 
 
 def parse_ios(v):
