@@ -23,15 +23,10 @@ from modules.colors import (
 
 README_FILE = "readme.md"
 
-IPHONE_8_X = {
-    "iPhone10,1",
-    "iPhone10,2",
-    "iPhone10,3",
-    "iPhone10,4",
-    "iPhone10,5",
-    "iPhone10,6",
-}
+# Import device identifiers from eligibility module to avoid duplication
+from modules.eligibility import IPHONE_8_X, IPHONE_7_BELOW
 
+# Alias for backwards compatibility
 IPHONE_7 = {
     "iPhone9,1",
     "iPhone9,2",

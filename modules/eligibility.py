@@ -23,6 +23,7 @@ def ios_gt(current, target):
     return parse_ios(current) > parse_ios(target)
 
 
+# Device identifier sets for eligibility checking
 IPHONE_8_X = {
     "iPhone10,1",
     "iPhone10,2",
@@ -31,7 +32,6 @@ IPHONE_8_X = {
     "iPhone10,5",
     "iPhone10,6",
 }
-
 
 IPHONE_7_BELOW = {
     "iPhone6,1",

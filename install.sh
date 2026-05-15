@@ -17,7 +17,11 @@ fi
 echo
 echo "[*] Installing Python dependencies..."
 
-python3 -m pip install colorama
+if [ -f "requirements.txt" ]; then
+    python3 -m pip install -r requirements.txt
+else
+    python3 -m pip install colorama
+fi
 
 echo
 echo "[*] Setting executable permissions..."

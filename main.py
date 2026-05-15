@@ -99,6 +99,29 @@ def handle_normal_mode():
     return main_action_menu(device, eligibility)
 
 
+if __name__ == "__main__":
+    try:
+        clear()
+        print_header()
+
+        mode = detect_mode()
+
+        if mode == "NORMAL":
+            result = handle_normal_mode()
+
+            while result == "RESET":
+                clear()
+                print_header()
+                result = handle_normal_mode()
+
+        else:
+            print(f"{RED}[!] Device not detected or not in normal mode.{RESET}")
+            print(f"{YELLOW}[*] Detected mode: {mode}{RESET}")
+
+    except KeyboardInterrupt:
+        pass
+
+
 def handle_recovery_mode():
     print(f"{YELLOW}[*] Recovery mode detected.{RESET}")
     print(f"{WHITE}Device is ready for recovery operations.{RESET}")
