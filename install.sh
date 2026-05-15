@@ -66,15 +66,8 @@ brew install libimobiledevice || true
 
 echo "[*] Installing ideviceinstaller..."
 
-if ! command -v ideviceinstaller &> /dev/null; then
-    brew install --HEAD ideviceinstaller || {
-        echo "[!] brew install --HEAD ideviceinstaller failed."
-        echo "[*] Trying libimobiledevice tap..."
-
-        brew tap libimobiledevice/homebrew-libimobiledevice || true
-        brew install ideviceinstaller || true
-    }
-fi
+brew tap libimobiledevice/homebrew-libimobiledevice || true
+brew install ideviceinstaller || true
 
 if command -v ideviceinstaller &> /dev/null; then
     echo "[+] ideviceinstaller found at: $(command -v ideviceinstaller)"
