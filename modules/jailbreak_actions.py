@@ -192,19 +192,36 @@ def install_ipa(ipa_path):
 
         return False
 
-    # Check if ideviceinstaller is available (try to run it)
+    print(
+        f"{CYAN}[*] Installing IPA:{RESET} "
+        f"{WHITE}{ipa_path}{RESET}"
+    )
+
     try:
-        result = subprocess.run(
-            ["ideviceinstaller", "--help"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=2,
-        )
-        if result.returncode != 0:
-            raise FileNotFoundError
-    except (FileNotFoundError, subprocess.TimeoutExpired, Exception):
+        result = run_command([
+            "ideviceinstaller",
+            "-i",
+            ipa_path
+        ])
+        
+        if result:
+            return True
+        else:
+            print()
+            print(
+                f"{RED}[!] IPA installation failed.{RESET}"
+            )
+            print(
+                f"{YELLOW}[*] Make sure ideviceinstaller is installed:{RESET}"
+            )
+            print(
+                f"{WHITE}    brew install libimobiledevice{RESET}"
+            )
+            return False
+    except FileNotFoundError:
+        print()
         print(
-            f"{RED}[!] ideviceinstaller is not available or not responding.{RESET}"
+            f"{RED}[!] ideviceinstaller is not installed or not found in PATH.{RESET}"
         )
         print()
         print(
@@ -215,24 +232,9 @@ def install_ipa(ipa_path):
         )
         print()
         print(
-            f"{YELLOW}[*] Required for both Dopamine Roothide and Rootless.{RESET}"
-        )
-        print()
-        print(
-            f"{YELLOW}[*] If already installed, restart terminal/app and try again.{RESET}"
+            f"{YELLOW}[*] After installation, restart the terminal and try again.{RESET}"
         )
         return False
-
-    print(
-        f"{CYAN}[*] Installing IPA:{RESET} "
-        f"{WHITE}{ipa_path}{RESET}"
-    )
-
-    return run_command([
-        "ideviceinstaller",
-        "-i",
-        ipa_path
-    ])
 
 
 def run_trollrestore_tips():
