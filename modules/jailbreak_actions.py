@@ -1,17 +1,19 @@
 import os
 import subprocess
-import shutil
 import tempfile
+import shutil
 
-from modules.key_input import get_key
 from modules.colors import (
     GREEN,
     RED,
     YELLOW,
     CYAN,
+    MAGENTA,
     WHITE,
     RESET,
 )
+
+from modules.key_input import get_key
 
 from modules.resources import (
     DOPAHIDE_IPA,
@@ -23,9 +25,9 @@ from modules.resources import (
 )
 
 
-def run_command(cmd, cwd=None):
+def run_command(command, cwd=None):
     try:
-        result = subprocess.run(cmd, cwd=cwd)
+        result = subprocess.run(command, cwd=cwd)
         return result.returncode == 0
 
     except Exception as error:
@@ -34,153 +36,7 @@ def run_command(cmd, cwd=None):
 
 
 def pause():
-    input(f"\n{CYAN}Press Enter to return to main menu...{RESET}")
-    return "MAIN_MENU"
-
-
-def select_option():
-    return get_key()
-
-
-def print_jailbreak_notes():
-    print()
-    print(f"{YELLOW}Notes{RESET}")
-    print(f"{YELLOW}-----{RESET}")
-    print()
-    print("• Make sure your device does not have a passcode enabled.")
-    print()
-    print("• Please back up all important data before proceeding.")
-    print()
-    print("• Preserving user data after jailbreak operations is not guaranteed.")
-    print()
-    print(
-        "• If you are not sure whether your device still contains "
-        "an old jailbreak environment from winra1n, checkra1n, "
-        "or older palera1n setups, we highly recommend using "
-        "Force-revert first."
-    )
-
-
-def run_palera1n_force_revert():
-    palera1n = get_palera1n_binary()
-
-    if not palera1n:
-        print(f"{RED}[!] palera1n is not available.{RESET}")
-        return
-
-    print(f"{CYAN}[*] Running palera1n force-revert...{RESET}")
-
-    ok = run_command([
-        palera1n,
-        "--force-revert",
-        "-lv"
-    ])
-
-    if ok:
-        print()
-        print(
-            f"{GREEN}"
-            f"Done. Please reboot your device once more "
-            f"to complete the force-revert process."
-            f"{RESET}"
-        )
-    else:
-        print(f"{RED}[!] palera1n force-revert failed.{RESET}")
-
-
-def run_palera1n_rootless():
-    palera1n = get_palera1n_binary()
-
-    if not palera1n:
-        print(f"{RED}[!] palera1n is not available.{RESET}")
-        return
-
-    print(f"{CYAN}[*] Running palera1n rootless...{RESET}")
-
-    ok = run_command([palera1n, "-lv"])
-
-    if ok:
-        print()
-        print(
-            f"{GREEN}"
-            f"Done. Please install Sileo/Zebra "
-            f"via palera1n Loader and enjoy."
-            f"{RESET}"
-        )
-    else:
-        print(f"{RED}[!] palera1n failed.{RESET}")
-
-
-def palera1n_menu():
-    while True:
-        print()
-        print(f"{CYAN}palera1n rootless options:{RESET}")
-        print()
-        print(f"{CYAN}[1]{RESET} Force-revert")
-        print(f"{CYAN}[2]{RESET} Run palera1n rootless")
-        print(f"{CYAN}[0]{RESET} Back")
-
-        choice = select_option()
-
-        if choice == "1":
-            print()
-            print(
-                f"{WHITE}"
-                f"Use this when you want to remove an old "
-                f"palera1n jailbreak environment, including "
-                f"rootful or rootless."
-                f"{RESET}"
-            )
-            print()
-
-            run_palera1n_force_revert()
-
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "2":
-            run_palera1n_rootless()
-
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "0":
-            return
-
-        else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
-
-
-def prepare_ipa_for_install(ipa_path):
-    """
-    ideviceinstaller expects .ipa.
-    Some packages are .tipa for TrollStore, but structurally they are often IPA files.
-    This creates a temporary .ipa copy when needed.
-    """
-
-    if ipa_path.lower().endswith(".ipa"):
-        return ipa_path, None
-
-    if ipa_path.lower().endswith(".tipa"):
-        temp_dir = tempfile.mkdtemp(prefix="aiojb_ipa_")
-        temp_ipa = os.path.join(
-            temp_dir,
-            os.path.basename(ipa_path)[:-5] + ".ipa"
-        )
-
-        shutil.copy2(ipa_path, temp_ipa)
-
-        print(f"{YELLOW}[*] .tipa detected. Using temporary .ipa copy.{RESET}")
-        print(f"{WHITE}    {temp_ipa}{RESET}")
-
-        return temp_ipa, temp_dir
-
-    return ipa_path, None
-
-
-def cleanup_temp_dir(temp_dir):
-    if temp_dir and os.path.exists(temp_dir):
-        shutil.rmtree(temp_dir, ignore_errors=True)
+    input(f"\n{CYAN}Press Enter to continue...{RESET}")
 
 
 def install_ipa(ipa_path):
@@ -188,96 +44,37 @@ def install_ipa(ipa_path):
         print(f"{RED}[!] IPA not found: {ipa_path}{RESET}")
         return False
 
-    if not shutil.which("ideviceinstaller"):
-        print()
-        print(f"{RED}[!] ideviceinstaller is not installed or not found in PATH.{RESET}")
-        print()
-        print(f"{YELLOW}[*] Install it with:{RESET}")
-        print(f"{WHITE}    brew install --HEAD ideviceinstaller{RESET}")
-        print()
-        print(f"{YELLOW}[*] If that fails, try:{RESET}")
-        print(f"{WHITE}    brew tap libimobiledevice/homebrew-libimobiledevice{RESET}")
-        print(f"{WHITE}    brew install ideviceinstaller{RESET}")
-        return False
-
-    install_path, temp_dir = prepare_ipa_for_install(ipa_path)
-
-    print(
-        f"{CYAN}[*] Installing IPA:{RESET} "
-        f"{WHITE}{install_path}{RESET}"
-    )
+    temp_dir = tempfile.mkdtemp(prefix="aiojb_ipa_")
+    temp_ipa = os.path.join(temp_dir, "Dopamine.ipa")
 
     try:
-        result = subprocess.run(
-            ["ideviceinstaller", "-i", install_path],
-            capture_output=True,
-            text=True,
-            timeout=120
+        shutil.copy2(ipa_path, temp_ipa)
+
+        print()
+        print(f"{CYAN}[*] .tipa detected. Using temporary .ipa copy.{RESET}")
+        print(f"    {temp_ipa}")
+
+        print()
+        print(
+            f"{CYAN}[*] Installing IPA:{RESET} "
+            f"{WHITE}{temp_ipa}{RESET}"
         )
 
-        if result.returncode == 0:
-            print(f"{GREEN}[+] IPA installed successfully.{RESET}")
-            return True
+        ok = run_command([
+            "ideviceinstaller",
+            "install",
+            temp_ipa
+        ])
 
-        print()
-        print(f"{RED}[!] IPA installation failed.{RESET}")
+        if ok:
+            print(f"{GREEN}[+] IPA installation completed.{RESET}")
+        else:
+            print(f"{RED}[!] IPA installation failed.{RESET}")
 
-        if result.stderr:
-            print()
-            print(f"{YELLOW}Error details:{RESET}")
-            print(f"{WHITE}{result.stderr.strip()}{RESET}")
-
-        if result.stdout:
-            print()
-            print(f"{YELLOW}Output:{RESET}")
-            print(f"{WHITE}{result.stdout.strip()}{RESET}")
-
-        print()
-        print(f"{YELLOW}[*] Troubleshooting:{RESET}")
-        print(f"{WHITE}1. Make sure the device is connected and trusted.{RESET}")
-        print(f"{WHITE}2. Unlock the device before installing.{RESET}")
-        print(f"{WHITE}3. Make sure the device is in normal mode.{RESET}")
-        print(f"{WHITE}4. If this is a .tipa, it may require TrollStore.{RESET}")
-        print(f"{WHITE}5. Reinstall ideviceinstaller if needed:{RESET}")
-        print(f"{WHITE}   brew install --HEAD ideviceinstaller{RESET}")
-
-        return False
-
-    except subprocess.TimeoutExpired:
-        print()
-        print(f"{RED}[!] Installation timed out.{RESET}")
-        print(f"{YELLOW}[*] Try again or check device connection.{RESET}")
-        return False
-
-    except Exception as error:
-        print()
-        print(f"{RED}[!] Unexpected error: {error}{RESET}")
-        return False
+        return ok
 
     finally:
-        cleanup_temp_dir(temp_dir)
-
-
-def run_trollrestore_tips():
-    if not os.path.exists(TROLLRESTORE_BINARY):
-        print(
-            f"{RED}"
-            f"[!] TrollRestore binary not found."
-            f"{RESET}"
-        )
-        return False
-
-    print(
-        f"{CYAN}"
-        f"[*] Running TrollRestore with "
-        f"persistence helper: Tips"
-        f"{RESET}"
-    )
-
-    return run_command([
-        TROLLRESTORE_BINARY,
-        "Tips"
-    ])
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def run_palehide():
@@ -285,7 +82,8 @@ def run_palehide():
         print(f"{RED}[!] palehide script not found.{RESET}")
         return False
 
-    print(f"{CYAN}[*] Running palehide...{RESET}")
+    print()
+    print(f"{CYAN}[*] Running palehide bootstrap...{RESET}")
 
     return run_command(
         ["bash", PALEHIDE_SCRIPT],
@@ -293,217 +91,248 @@ def run_palehide():
     )
 
 
-def dopamine_trollrestore_flow(ipa_path):
-    ipa_ok = install_ipa(ipa_path)
+def run_trollrestore():
+    if not os.path.exists(TROLLRESTORE_BINARY):
+        print(f"{RED}[!] TrollRestore binary not found.{RESET}")
+        return False
 
-    if not ipa_ok:
-        print(f"{RED}[!] IPA installation failed.{RESET}")
+    print()
+    print(f"{CYAN}[*] Launching TrollRestore...{RESET}")
+    print(
+        f"{WHITE}"
+        f"When prompted, type: Tips"
+        f"{RESET}"
+    )
+
+    return run_command([TROLLRESTORE_BINARY])
+
+
+def force_revert():
+    palera1n = get_palera1n_binary()
+
+    if not palera1n:
+        print(f"{RED}[!] palera1n not found.{RESET}")
         return
 
-    restore_ok = run_trollrestore_tips()
+    print()
+    print(f"{MAGENTA}Force Revert{RESET}")
+    print(f"{MAGENTA}--------------{RESET}")
+    print()
 
-    if restore_ok:
-        print()
+    print(
+        f"{WHITE}"
+        f"Use this when you want to remove old palera1n "
+        f"(rootful/rootless) environments."
+        f"{RESET}"
+    )
+
+    print()
+
+    ok = run_command([
+        palera1n,
+        "--force-revert",
+        "-l",
+        "-v"
+    ])
+
+    print()
+
+    if ok:
         print(
             f"{GREEN}"
-            f"Done. Your device will now reboot."
-            f"{RESET}"
-        )
-        print(
-            f"{WHITE}"
-            f"After reboot, open Tips to install TrollStore."
-            f"{RESET}"
-        )
-        print(
-            f"{WHITE}"
-            f"Then install Dopamine normally via TrollStore."
+            f"Done. Device may reboot again to finish force-revert."
             f"{RESET}"
         )
     else:
-        print(f"{RED}[!] TrollRestore failed.{RESET}")
+        print(f"{RED}[!] Force revert failed.{RESET}")
+
+    pause()
 
 
-def dopamine_palehide_flow():
+def palera1n_rootless():
+    palera1n = get_palera1n_binary()
+
+    if not palera1n:
+        print(f"{RED}[!] palera1n not found.{RESET}")
+        return
+
+    print()
+    print(f"{MAGENTA}palera1n rootless{RESET}")
+    print(f"{MAGENTA}------------------{RESET}")
+    print()
+
+    ok = run_command([
+        palera1n,
+        "-l",
+        "-v"
+    ])
+
+    print()
+
+    if ok:
+        print(
+            f"{GREEN}"
+            f"Done. Please install Sileo/Zebra via Palera1n Loader and enjoy."
+            f"{RESET}"
+        )
+    else:
+        print(f"{RED}[!] palera1n failed.{RESET}")
+
+    pause()
+
+
+def dopamine_rootless():
+    print()
+    print(f"{MAGENTA}Dopamine rootless{RESET}")
+    print(f"{MAGENTA}-------------------{RESET}")
+
+    ipa_ok = install_ipa(DOPALESS_IPA)
+
+    print()
+
+    if ipa_ok:
+        print(
+            f"{GREEN}"
+            f"Done. Please open TrollStore and install Dopamine."
+            f"{RESET}"
+        )
+    else:
+        print(f"{RED}[!] Dopamine installation failed.{RESET}")
+
+    pause()
+
+
+def dopamine_roothide():
+    print()
+    print(f"{MAGENTA}Dopamine roothide{RESET}")
+    print(f"{MAGENTA}-------------------{RESET}")
+
     ipa_ok = install_ipa(DOPAHIDE_IPA)
 
     if not ipa_ok:
-        print(f"{RED}[!] IPA installation failed.{RESET}")
+        print(f"{RED}[!] Dopamine roothide installation failed.{RESET}")
+        pause()
         return
+
+    print()
 
     palehide_ok = run_palehide()
 
+    print()
+
     if palehide_ok:
-        print()
         print(
             f"{GREEN}"
             f"Done. Please install Dopamine via TrollStore."
             f"{RESET}"
         )
+
         print(
             f"{WHITE}"
-            f"You may need to run this again "
-            f"when your device is rebooted."
+            f"You may need to run this again when your device is rebooted."
             f"{RESET}"
         )
+
     else:
-        print(f"{RED}[!] palehide failed.{RESET}")
+        print(f"{RED}[!] palehide bootstrap failed.{RESET}")
+
+    pause()
 
 
-def dopamine_menu_group_b():
-    while True:
-        print()
-        print(f"{CYAN}Dopamine options:{RESET}")
-        print()
-        print(f"{CYAN}[1]{RESET} Rootless")
-        print(f"{CYAN}[2]{RESET} Roothide")
-        print(f"{CYAN}[0]{RESET} Back")
+def trollrestore_dopamine():
+    print()
+    print(f"{MAGENTA}TrollRestore Bootstrap{RESET}")
+    print(f"{MAGENTA}-----------------------{RESET}")
 
-        choice = select_option()
+    ipa_ok = install_ipa(DOPAHIDE_IPA)
 
-        if choice == "1":
-            dopamine_trollrestore_flow(DOPALESS_IPA)
+    if not ipa_ok:
+        print(f"{RED}[!] IPA installation failed.{RESET}")
+        pause()
+        return
 
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
+    troll_ok = run_trollrestore()
 
-        elif choice == "2":
-            dopamine_trollrestore_flow(DOPAHIDE_IPA)
+    print()
 
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
+    if troll_ok:
+        print(
+            f"{GREEN}"
+            f"Done. Open Tips to install TrollStore."
+            f"{RESET}"
+        )
 
-        elif choice == "0":
-            return
+        print(
+            f"{WHITE}"
+            f"Then install Dopamine normally through TrollStore."
+            f"{RESET}"
+        )
 
-        else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
+    else:
+        print(f"{RED}[!] TrollRestore failed.{RESET}")
 
-
-def jailbreak_menu_group_a():
-    while True:
-        print()
-        print(f"{CYAN}Available options:{RESET}")
-        print()
-        print(f"{CYAN}[1]{RESET} palera1n rootless")
-        print(f"{CYAN}[2]{RESET} Dopamine roothide")
-        print(f"{CYAN}[0]{RESET} Back")
-
-        choice = select_option()
-
-        if choice == "1":
-            result = palera1n_menu()
-
-            if result == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "2":
-            dopamine_palehide_flow()
-
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "0":
-            return
-
-        else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
+    pause()
 
 
-def jailbreak_menu_group_b():
-    while True:
-        print()
-        print(f"{CYAN}Available options:{RESET}")
-        print()
-        print(f"{CYAN}[1]{RESET} palera1n rootless")
-        print(f"{CYAN}[2]{RESET} Dopamine")
-        print(f"{CYAN}[0]{RESET} Back")
-
-        choice = select_option()
-
-        if choice == "1":
-            result = palera1n_menu()
-
-            if result == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "2":
-            result = dopamine_menu_group_b()
-
-            if result == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "0":
-            return
-
-        else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
-
-
-def jailbreak_menu_group_c():
-    while True:
-        print()
-        print(f"{CYAN}Available options:{RESET}")
-        print()
-        print(f"{CYAN}[1]{RESET} palera1n rootless")
-        print(f"{CYAN}[2]{RESET} Dopamine roothide")
-        print(f"{CYAN}[0]{RESET} Back")
-
-        choice = select_option()
-
-        if choice == "1":
-            result = palera1n_menu()
-
-            if result == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "2":
-            dopamine_trollrestore_flow(DOPAHIDE_IPA)
-
-            if pause() == "MAIN_MENU":
-                return "MAIN_MENU"
-
-        elif choice == "0":
-            return
-
-        else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
+def select_option():
+    return get_key()
 
 
 def start_jailbreak_flow(eligibility):
-    if not eligibility.get("is_supported"):
-        print(f"{RED}[!] This device is not supported.{RESET}")
-        return
-
     group = eligibility.get("group")
-
-    print_jailbreak_notes()
 
     while True:
         print()
-        print(f"{CYAN}[1]{RESET} Continue to jailbreak")
-        print(f"{CYAN}[0]{RESET} Back")
+        print(f"{CYAN}Jailbreak Actions{RESET}")
+        print(f"{CYAN}-----------------{RESET}")
 
-        choice = select_option()
+        if group == "A":
+            print(f"{CYAN}[1]{RESET} palera1n rootless")
+            print(f"{CYAN}[2]{RESET} Dopamine roothide")
+            print(f"{CYAN}[3]{RESET} Force Revert")
+            print(f"{CYAN}[0]{RESET} Back")
 
-        if choice == "1":
-            if group == "A":
-                result = jailbreak_menu_group_a()
+            choice = select_option()
 
-            elif group == "B":
-                result = jailbreak_menu_group_b()
+            if choice == "1":
+                palera1n_rootless()
 
-            elif group == "C":
-                result = jailbreak_menu_group_c()
+            elif choice == "2":
+                dopamine_roothide()
 
-            else:
-                print(f"{RED}[!] Unknown jailbreak group.{RESET}")
+            elif choice == "3":
+                force_revert()
+
+            elif choice == "0":
                 return
 
-            if result == "MAIN_MENU":
-                return "RESET"
+        elif group == "B":
+            print(f"{CYAN}[1]{RESET} palera1n rootless")
+            print(f"{CYAN}[2]{RESET} Dopamine")
+            print(f"{CYAN}[0]{RESET} Back")
 
-        elif choice == "0":
-            return "RESET"
+            choice = select_option()
+
+            if choice == "1":
+                palera1n_rootless()
+
+            elif choice == "2":
+                print()
+                print(f"{CYAN}[1]{RESET} Rootless")
+                print(f"{CYAN}[2]{RESET} Roothide")
+                print(f"{CYAN}[0]{RESET} Back")
+
+                sub = select_option()
+
+                if sub == "1":
+                    dopamine_rootless()
+
+                elif sub == "2":
+                    trollrestore_dopamine()
+
+            elif choice == "0":
+                return
 
         else:
-            print(f"{YELLOW}[!] Invalid option.{RESET}")
+            print(f"{RED}[!] Unsupported device group.{RESET}")
+            return
