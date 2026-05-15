@@ -1,5 +1,6 @@
-import time
 import os
+import time
+import shutil
 
 from modules.colors import (
     GREEN,
@@ -30,7 +31,7 @@ def clear():
 
 
 def print_header():
-    print(f"{CYAN}{BRIGHT}AIO JB Tool v{VERSION}{RESET}")
+    print(f"{CYAN}{BRIGHT}{APP_NAME} v{VERSION}{RESET}")
     print(f"{MAGENTA}by sinszxmc{RESET}")
     print(f"{WHITE}for A11 and below devices{RESET}")
     print()
@@ -40,12 +41,41 @@ def select_option():
     return get_key()
 
 
+def check_startup_dependencies():
+    dependencies = [
+        "idevice_id",
+        "ideviceinfo",
+        "idevicepair",
+        "ideviceinstaller",
+    ]
+
+    missing = []
+
+    print(f"{CYAN}Checking dependencies...{RESET}")
+
+    for dep in dependencies:
+        path = shutil.which(dep)
+
+        if path:
+            print(f"{GREEN}[+] {dep}: OK{RESET}")
+        else:
+            print(f"{YELLOW}[!] {dep}: Missing{RESET}")
+            missing.append(dep)
+
+    if missing:
+        print()
+        print(f"{YELLOW}Some dependencies are missing.{RESET}")
+        print(f"{WHITE}Run install.sh again or install them manually with Homebrew.{RESET}")
+
+    print()
+
+
 def main_action_menu(device, eligibility):
     while True:
         print()
         print(f"{CYAN}[1]{RESET} Jailbreak")
         print(f"{CYAN}[2]{RESET} Utilities")
-        print(f"{CYAN}[3]{RESET} Eject Device")
+        print(f"{CYAN}[3]{RESET} Remove Pairing")
         print(f"{CYAN}[0]{RESET} Quit")
 
         choice = select_option()
@@ -63,19 +93,16 @@ def main_action_menu(device, eligibility):
             utilities_menu(device)
 
         elif choice == "3":
+            print(f"{YELLOW}[*] Removing device pairing...{RESET}")
             os.system("idevicepair unpair")
-            print(f"{GREEN}[+] Device ejected.{RESET}")
+            print(f"{GREEN}[+] Pairing removed.{RESET}")
+            print(f"{YELLOW}[*] You may need to trust this computer again.{RESET}")
             return "RESET"
 
         elif choice == "0":
             clear()
-
             print_header()
-
-            print(
-                f"{CYAN}Thank you for using AIO JB Tool.{RESET}"
-            )
-
+            print(f"{CYAN}Thank you for using AIO JB Tool.{RESET}")
             raise KeyboardInterrupt
 
         else:
@@ -87,7 +114,7 @@ def handle_normal_mode():
 
     if not device:
         print(f"{RED}[!] Could not get device info.{RESET}")
-        return
+        return None
 
     device["mode"] = "NORMAL"
 
@@ -97,29 +124,6 @@ def handle_normal_mode():
     print_recommendation(eligibility)
 
     return main_action_menu(device, eligibility)
-
-
-if __name__ == "__main__":
-    try:
-        clear()
-        print_header()
-
-        mode = detect_mode()
-
-        if mode == "NORMAL":
-            result = handle_normal_mode()
-
-            while result == "RESET":
-                clear()
-                print_header()
-                result = handle_normal_mode()
-
-        else:
-            print(f"{RED}[!] Device not detected or not in normal mode.{RESET}")
-            print(f"{YELLOW}[*] Detected mode: {mode}{RESET}")
-
-    except KeyboardInterrupt:
-        pass
 
 
 def handle_recovery_mode():
@@ -135,6 +139,7 @@ def handle_dfu_mode():
 def main():
     clear()
     print_header()
+    check_startup_dependencies()
     print(f"{CYAN}[*] Waiting for device...{RESET}")
 
     start_time = time.time()
@@ -153,7 +158,6 @@ def main():
 
                 if mode == "RECOVERY":
                     mode_color = YELLOW
-
                 elif mode == "DFU":
                     mode_color = MAGENTA
 
@@ -203,6 +207,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-
     except KeyboardInterrupt:
         pass
