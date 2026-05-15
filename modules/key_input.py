@@ -5,9 +5,10 @@ if os.name == "nt":
     import msvcrt
 
     def get_key():
-        key = msvcrt.getch().decode("utf-8", errors="ignore")
-        print(f"\n{key}")
-        return key
+        return msvcrt.getch().decode(
+            "utf-8",
+            errors="ignore"
+        )
 
 else:
     import sys
@@ -22,7 +23,6 @@ else:
         try:
             tty.setraw(fd)
             key = sys.stdin.read(1)
-            print(f"\n{key}")
 
         finally:
             termios.tcsetattr(

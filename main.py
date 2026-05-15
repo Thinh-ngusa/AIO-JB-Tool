@@ -46,7 +46,7 @@ def main_action_menu(device, eligibility):
         print(f"{CYAN}[1]{RESET} Jailbreak")
         print(f"{CYAN}[2]{RESET} Utilities")
         print(f"{CYAN}[3]{RESET} Eject Device")
-        print(f"{CYAN}[0]{RESET} Refresh")
+        print(f"{CYAN}[0]{RESET} Quit")
 
         choice = select_option()
 
@@ -68,7 +68,15 @@ def main_action_menu(device, eligibility):
             return "RESET"
 
         elif choice == "0":
-            return "RESET"
+            clear()
+
+            print_header()
+
+            print(
+                f"{CYAN}Thank you for using AIO JB Tool.{RESET}"
+            )
+
+            raise KeyboardInterrupt
 
         else:
             print(f"{YELLOW}[!] Invalid option.{RESET}")
@@ -174,7 +182,4 @@ if __name__ == "__main__":
         main()
 
     except KeyboardInterrupt:
-        print()
-        print(
-            f"{CYAN}Thank you for using AIO JB Tool.{RESET}"
-        )
+        pass
