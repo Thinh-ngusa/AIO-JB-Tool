@@ -21,7 +21,7 @@ from modules.colors import (
 )
 
 
-README_FILE = "README.md"
+README_FILE = "readme.md"
 
 IPHONE_8_X = {
     "iPhone10,1",
