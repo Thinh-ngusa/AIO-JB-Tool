@@ -1,5 +1,7 @@
+import os
 import subprocess
 import shutil
+import platform
 
 from modules.key_input import get_key
 from modules.resources import (
@@ -18,6 +20,8 @@ from modules.colors import (
     RESET,
 )
 
+
+README_FILE = "README.md"
 
 IPHONE_8_X = {
     "iPhone10,1",
@@ -202,6 +206,31 @@ def bootstrap_8x_dopamine(device):
         print(f"{RED}[!] palehide bootstrap failed.{RESET}")
 
 
+def open_readme():
+    if not os.path.exists(README_FILE):
+        print(f"{RED}[!] README.md not found.{RESET}")
+        return
+
+    print(f"{CYAN}[*] Opening README...{RESET}")
+
+    system = platform.system()
+
+    try:
+        if system == "Darwin":
+            subprocess.run(["open", README_FILE])
+
+        elif system == "Windows":
+            os.startfile(README_FILE)
+
+        else:
+            subprocess.run(["xdg-open", README_FILE])
+
+        print(f"{GREEN}[+] README opened.{RESET}")
+
+    except Exception as error:
+        print(f"{RED}[!] Failed to open README: {error}{RESET}")
+
+
 def utilities_menu(device):
     while True:
         print()
@@ -214,6 +243,7 @@ def utilities_menu(device):
         print(f"{CYAN}[4]{RESET} Exit Recovery")
         print(f"{CYAN}[5]{RESET} Reboot Device")
         print(f"{CYAN}[6]{RESET} Bootstrap for 8/X using Dopamine")
+        print(f"{CYAN}[7]{RESET} Open README")
         print(f"{CYAN}[0]{RESET} Back")
 
         choice = select_option()
@@ -239,6 +269,10 @@ def utilities_menu(device):
 
         elif choice == "6":
             bootstrap_8x_dopamine(device)
+            pause()
+
+        elif choice == "7":
+            open_readme()
             pause()
 
         elif choice == "0":
