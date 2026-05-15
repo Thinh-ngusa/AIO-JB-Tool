@@ -4,12 +4,15 @@ clear
 
 echo "[*] Installing AIO JB Tool..."
 
-echo
-echo "[*] Cloning repository..."
-
-git clone https://github.com/Thinh-ngusa/AIO-JB-Tool.git
-
-cd AIO-JB-Tool || exit
+# Check if already in AIO-JB-Tool directory
+if [ ! -f "main.py" ]; then
+    echo
+    echo "[*] Cloning repository..."
+    
+    git clone https://github.com/Thinh-ngusa/AIO-JB-Tool.git
+    
+    cd AIO-JB-Tool || exit
+fi
 
 echo
 echo "[*] Installing Python dependencies..."
