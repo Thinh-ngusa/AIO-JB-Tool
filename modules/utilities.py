@@ -273,7 +273,7 @@ def utilities_menu(device):
 
         elif choice == "7":
             open_readme()
-            return
+            return "RESET"
 
         elif choice == "0":
             return
