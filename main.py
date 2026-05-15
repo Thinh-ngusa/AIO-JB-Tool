@@ -60,9 +60,7 @@ def main_action_menu(device, eligibility):
                 print(f"{RED}[!] This device is not supported.{RESET}")
 
         elif choice == "2":
-            result = utilities_menu(device)
-            if result == "RESET":
-                return "RESET"
+            utilities_menu(device)
 
         elif choice == "3":
             os.system("idevicepair unpair")
