@@ -1,36 +1,42 @@
 import subprocess
 
 
-IDEVICEINFO = r"C:\libimobiledevice\ideviceinfo.exe"
-IRECOVERY = r"C:\libimobiledevice\irecovery.exe"
-
-
-def run_cmd(cmd, timeout=5):
+def command_success(command):
     try:
         result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout
+            command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
         )
 
-        return result.stdout.strip()
+        return result.returncode == 0
 
     except Exception:
-        return ""
+        return False
 
 
 def detect_mode():
-    # NORMAL MODE
-    normal = run_cmd([IDEVICEINFO])
-
-    if normal:
+    # NORMAL
+    if command_success(["ideviceinfo"]):
         return "NORMAL"
 
-    # RECOVERY MODE
-    recovery = run_cmd([IRECOVERY, "-q"])
+    # RECOVERY / DFU
+    try:
+        result = subprocess.run(
+            ["irecovery", "-q"],
+            capture_output=True,
+            text=True
+        )
 
-    if recovery:
-        return "RECOVERY"
+        output = result.stdout.lower()
+
+        if "recovery" in output:
+            return "RECOVERY"
+
+        if "dfu" in output:
+            return "DFU"
+
+    except Exception:
+        pass
 
     return None
