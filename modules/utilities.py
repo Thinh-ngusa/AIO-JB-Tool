@@ -4,29 +4,13 @@ import shutil
 import platform
 
 from modules.key_input import get_key
-from modules.resources import (
-    get_palera1n_binary,
-    PALEHIDE_DIR,
-    PALEHIDE_SCRIPT,
-)
-
-from modules.colors import (
-    GREEN,
-    RED,
-    YELLOW,
-    CYAN,
-    MAGENTA,
-    WHITE,
-    RESET,
-)
+from modules.resources import get_palera1n_binary, PALEHIDE_DIR, PALEHIDE_SCRIPT
+from modules.colors import GREEN, RED, YELLOW, CYAN, MAGENTA, WHITE, RESET
+from modules.eligibility import IPHONE_8_X
 
 
 README_FILE = "readme.md"
 
-# Import device identifiers from eligibility module to avoid duplication
-from modules.eligibility import IPHONE_8_X, IPHONE_7_BELOW
-
-# Alias for backwards compatibility
 IPHONE_7 = {
     "iPhone9,1",
     "iPhone9,2",
@@ -118,11 +102,9 @@ def dfu_helper():
     print(f"{MAGENTA}----------{RESET}")
     print(
         f"{WHITE}"
-        f"For 3rd-party software, checkm8 tools, "
-        f"restore utilities, and more."
+        f"For 3rd-party software, checkm8 tools, restore utilities, and more."
         f"{RESET}"
     )
-
     print()
     print(f"{CYAN}[*] Launching palera1n DFU helper...{RESET}")
 
@@ -146,11 +128,9 @@ def exit_dfu_help(device):
         print("1. Press Volume Up quickly.")
         print("2. Press Volume Down quickly.")
         print("3. Hold Side Button until the Apple logo appears.")
-
     elif identifier in IPHONE_7:
         print("Hold Power + Volume Down")
         print("until the Apple logo appears.")
-
     else:
         print("Hold Power + Home")
         print("until the Apple logo appears.")
@@ -159,15 +139,15 @@ def exit_dfu_help(device):
 
 
 def run_palehide():
-    if not PALEHIDE_SCRIPT:
-        print(f"{RED}[!] palehide script path is missing.{RESET}")
+    if not os.path.exists(PALEHIDE_SCRIPT):
+        print(f"{RED}[!] palehide script not found.{RESET}")
         return False
 
     print(f"{CYAN}[*] Running palehide bootstrap...{RESET}")
 
     return run_command(
         ["bash", PALEHIDE_SCRIPT],
-        cwd=PALEHIDE_DIR
+        cwd=PALEHIDE_DIR,
     )
 
 
@@ -192,11 +172,7 @@ def bootstrap_8x_dopamine(device):
     if palehide_ok:
         print()
         print(f"{GREEN}Done. Bootstrap completed.{RESET}")
-        print(
-            f"{WHITE}"
-            f"You may need to run this again after reboot."
-            f"{RESET}"
-        )
+        print(f"{WHITE}You may need to run this again after reboot.{RESET}")
     else:
         print(f"{RED}[!] palehide bootstrap failed.{RESET}")
 
@@ -213,10 +189,8 @@ def open_readme():
     try:
         if system == "Darwin":
             subprocess.run(["open", README_FILE])
-
         elif system == "Windows":
             os.startfile(README_FILE)
-
         else:
             subprocess.run(["xdg-open", README_FILE])
 
@@ -246,32 +220,24 @@ def utilities_menu(device):
         if choice == "1":
             dfu_helper()
             pause()
-
         elif choice == "2":
             exit_dfu_help(device)
-
         elif choice == "3":
             enter_recovery()
             pause()
-
         elif choice == "4":
             exit_recovery()
             pause()
-
         elif choice == "5":
             reboot_device()
             pause()
-
         elif choice == "6":
             bootstrap_8x_dopamine(device)
             pause()
-
         elif choice == "7":
             open_readme()
             return "RESET"
-
         elif choice == "0":
             return
-
         else:
             print(f"{YELLOW}[!] Invalid option.{RESET}")

@@ -3,21 +3,13 @@ import platform
 import shutil
 import subprocess
 
-from modules.colors import (
-    GREEN,
-    RED,
-    YELLOW,
-    CYAN,
-    RESET,
-)
+from modules.colors import GREEN, RED, YELLOW, CYAN, RESET
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
-TOOLS_DIR = os.path.join(RESOURCES_DIR, "tools")
 SCRIPTS_DIR = os.path.join(RESOURCES_DIR, "scripts")
-
 
 PALEHIDE_DIR = os.path.join(SCRIPTS_DIR, "palehide-beta7")
 PALEHIDE_SCRIPT = os.path.join(PALEHIDE_DIR, "palehide.sh")
@@ -28,7 +20,6 @@ PALERA1N_LINUX = os.path.join(PALEHIDE_DIR, "palera1n-linux-x86_64")
 PALERA1N_INSTALL_COMMAND = (
     'sudo /bin/sh -c "$(curl -fsSL https://static.palera.in/scripts/install.sh)"'
 )
-
 
 REQUIRED_RESOURCES = {
     "palehide script": PALEHIDE_SCRIPT,
@@ -60,11 +51,7 @@ def check_resources():
 def check_resource_permissions():
     issues = []
 
-    executable_resources = {
-        "palehide script": PALEHIDE_SCRIPT,
-    }
-
-    for name, path in executable_resources.items():
+    for name, path in REQUIRED_RESOURCES.items():
         if file_exists(path) and not is_executable(path):
             issues.append((name, path))
 
@@ -86,10 +73,6 @@ def get_palera1n_binary():
         return PALERA1N_LINUX
 
     return None
-
-
-def is_palera1n_installed():
-    return get_palera1n_binary() is not None
 
 
 def print_palera1n_notice():
@@ -133,3 +116,21 @@ def install_palera1n():
     except Exception as error:
         print(f"{RED}[!] palera1n installation error: {error}{RESET}")
         return False
+
+
+def print_resource_report():
+    print(f"{CYAN}Resources{RESET}")
+    print(f"{CYAN}---------{RESET}")
+
+    for name, path in REQUIRED_RESOURCES.items():
+        if file_exists(path):
+            print(f"{GREEN}[+] {name}: OK{RESET}")
+        else:
+            print(f"{RED}[!] {name}: Missing{RESET}")
+            print(f"    {path}")
+
+    for name, path in check_resource_permissions():
+        print(f"{YELLOW}[!] {name}: Not executable{RESET}")
+        print(f"    chmod +x {path}")
+
+    print_palera1n_notice()

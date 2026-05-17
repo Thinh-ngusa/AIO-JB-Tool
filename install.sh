@@ -6,6 +6,9 @@ echo
 echo "AIO JB Tool Installer"
 echo "---------------------"
 
+REPO_URL="https://github.com/Thinh-ngusa/AIO-JB-Tool.git"
+PROJECT_DIR="$HOME/AIO-JB-Tool"
+
 if ! command -v brew >/dev/null 2>&1; then
     echo
     echo "[!] Homebrew is not installed."
@@ -13,7 +16,7 @@ if ! command -v brew >/dev/null 2>&1; then
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-    if [ $? -ne 0 ]; then
+    if ! command -v brew >/dev/null 2>&1; then
         echo
         echo "[!] Failed to install Homebrew."
         exit 1
@@ -40,6 +43,17 @@ python3 -m pip install --upgrade pip
 python3 -m pip install colorama
 
 echo
+echo "[*] Preparing project folder..."
+
+if [ -d "$PROJECT_DIR/.git" ]; then
+    cd "$PROJECT_DIR" || exit 1
+    git pull
+else
+    git clone "$REPO_URL" "$PROJECT_DIR"
+    cd "$PROJECT_DIR" || exit 1
+fi
+
+echo
 echo "[*] Setting executable permissions..."
 
 chmod +x resources/scripts/palehide-beta7/palehide.sh 2>/dev/null
@@ -50,7 +64,7 @@ echo "[*] Creating aiojb launcher..."
 
 sudo tee /usr/local/bin/aiojb >/dev/null <<EOF
 #!/bin/bash
-cd "$(pwd)" || exit
+cd "$PROJECT_DIR" || exit
 python3 main.py
 EOF
 

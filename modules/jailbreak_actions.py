@@ -1,23 +1,9 @@
 import os
 import subprocess
 
-from modules.colors import (
-    GREEN,
-    RED,
-    YELLOW,
-    CYAN,
-    MAGENTA,
-    WHITE,
-    RESET,
-)
-
+from modules.colors import GREEN, RED, YELLOW, CYAN, MAGENTA, WHITE, RESET
 from modules.key_input import get_key
-
-from modules.resources import (
-    PALEHIDE_DIR,
-    PALEHIDE_SCRIPT,
-    get_palera1n_binary,
-)
+from modules.resources import PALEHIDE_DIR, PALEHIDE_SCRIPT, get_palera1n_binary
 
 
 def run_command(command, cwd=None):
@@ -38,6 +24,25 @@ def select_option():
     return get_key()
 
 
+def print_jailbreak_notes():
+    print()
+    print(f"{YELLOW}Notes{RESET}")
+    print(f"{YELLOW}-----{RESET}")
+    print()
+    print("• Make sure your device does not have a passcode enabled.")
+    print()
+    print("• Please back up all important data before proceeding.")
+    print()
+    print("• Preserving user data after jailbreak operations is not guaranteed.")
+    print()
+    print(
+        "• If you are not sure whether your device still contains "
+        "an old jailbreak environment from winra1n, checkra1n, "
+        "or older palera1n setups, we highly recommend using "
+        "Force-revert first."
+    )
+
+
 def run_palehide():
     if not os.path.exists(PALEHIDE_SCRIPT):
         print(f"{RED}[!] palehide script not found.{RESET}")
@@ -48,7 +53,7 @@ def run_palehide():
 
     return run_command(
         ["bash", PALEHIDE_SCRIPT],
-        cwd=PALEHIDE_DIR
+        cwd=PALEHIDE_DIR,
     )
 
 
@@ -70,7 +75,6 @@ def dopamine_palehide_flow(group):
                 f"You may need to run this again after reboot."
                 f"{RESET}"
             )
-
     else:
         print(f"{RED}[!] palehide failed.{RESET}")
 
@@ -88,22 +92,22 @@ def force_revert():
     print(f"{MAGENTA}Force Revert{RESET}")
     print(f"{MAGENTA}--------------{RESET}")
     print()
-
     print(
         f"{WHITE}"
         f"Use this when you want to remove old palera1n "
         f"(rootful/rootless) environments."
         f"{RESET}"
     )
-
     print()
 
-    ok = run_command([
-        palera1n,
-        "--force-revert",
-        "-l",
-        "-v"
-    ])
+    ok = run_command(
+        [
+            palera1n,
+            "--force-revert",
+            "-l",
+            "-v",
+        ]
+    )
 
     print()
 
@@ -131,18 +135,20 @@ def palera1n_rootless():
     print(f"{MAGENTA}------------------{RESET}")
     print()
 
-    ok = run_command([
-        palera1n,
-        "-l",
-        "-v"
-    ])
+    ok = run_command(
+        [
+            palera1n,
+            "-l",
+            "-v",
+        ]
+    )
 
     print()
 
     if ok:
         print(
             f"{GREEN}"
-            f"Done. Please install Sileo/Zebra via Palera1n Loader and enjoy."
+            f"Done. Please install Sileo/Zebra via palera1n Loader and enjoy."
             f"{RESET}"
         )
     else:
@@ -152,7 +158,13 @@ def palera1n_rootless():
 
 
 def start_jailbreak_flow(eligibility):
+    if not eligibility.get("is_supported"):
+        print(f"{RED}[!] This device is not supported.{RESET}")
+        return "RESET"
+
     group = eligibility.get("group")
+
+    print_jailbreak_notes()
 
     while True:
         print()
@@ -169,15 +181,14 @@ def start_jailbreak_flow(eligibility):
 
             if choice == "1":
                 palera1n_rootless()
-
             elif choice == "2":
                 dopamine_palehide_flow(group)
-
             elif choice == "3":
                 force_revert()
-
             elif choice == "0":
                 return "RESET"
+            else:
+                print(f"{YELLOW}[!] Invalid option.{RESET}")
 
         elif group == "B":
             print(f"{CYAN}[1]{RESET} palera1n rootless")
@@ -189,7 +200,6 @@ def start_jailbreak_flow(eligibility):
 
             if choice == "1":
                 palera1n_rootless()
-
             elif choice == "2":
                 print()
                 print(f"{CYAN}[1]{RESET} Rootless")
@@ -200,15 +210,19 @@ def start_jailbreak_flow(eligibility):
 
                 if sub == "1":
                     dopamine_palehide_flow(group)
-
                 elif sub == "2":
                     dopamine_palehide_flow(group)
+                elif sub == "0":
+                    continue
+                else:
+                    print(f"{YELLOW}[!] Invalid option.{RESET}")
 
             elif choice == "3":
                 force_revert()
-
             elif choice == "0":
                 return "RESET"
+            else:
+                print(f"{YELLOW}[!] Invalid option.{RESET}")
 
         elif group == "C":
             print(f"{CYAN}[1]{RESET} palera1n rootless")
@@ -220,15 +234,14 @@ def start_jailbreak_flow(eligibility):
 
             if choice == "1":
                 palera1n_rootless()
-
             elif choice == "2":
                 dopamine_palehide_flow(group)
-
             elif choice == "3":
                 force_revert()
-
             elif choice == "0":
                 return "RESET"
+            else:
+                print(f"{YELLOW}[!] Invalid option.{RESET}")
 
         else:
             print(f"{RED}[!] Unsupported device group.{RESET}")
