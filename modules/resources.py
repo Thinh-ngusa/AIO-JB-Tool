@@ -15,13 +15,9 @@ from modules.colors import (
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
-IPA_DIR = os.path.join(RESOURCES_DIR, "ipa")
 TOOLS_DIR = os.path.join(RESOURCES_DIR, "tools")
 SCRIPTS_DIR = os.path.join(RESOURCES_DIR, "scripts")
 
-
-DOPAHIDE_IPA = os.path.join(IPA_DIR, "Dopahide.tipa")
-DOPALESS_IPA = os.path.join(IPA_DIR, "Dopaless.tipa")
 
 PALEHIDE_DIR = os.path.join(SCRIPTS_DIR, "palehide-beta7")
 PALEHIDE_SCRIPT = os.path.join(PALEHIDE_DIR, "palehide.sh")
@@ -34,32 +30,8 @@ PALERA1N_INSTALL_COMMAND = (
 )
 
 
-def get_arch():
-    arch = platform.machine().lower()
-
-    if arch in ["arm64", "aarch64"]:
-        return "arm64"
-
-    return "amd64"
-
-
-def get_trollrestore_binary():
-    arch = get_arch()
-
-    if arch == "arm64":
-        return os.path.join(TOOLS_DIR, "trollrestore-arm64")
-
-    return os.path.join(TOOLS_DIR, "trollrestore-amd64")
-
-
-TROLLRESTORE_BINARY = get_trollrestore_binary()
-
-
 REQUIRED_RESOURCES = {
-    "Dopamine roothide IPA": DOPAHIDE_IPA,
-    "Dopamine rootless IPA": DOPALESS_IPA,
     "palehide script": PALEHIDE_SCRIPT,
-    "TrollRestore binary": TROLLRESTORE_BINARY,
 }
 
 
@@ -90,7 +62,6 @@ def check_resource_permissions():
 
     executable_resources = {
         "palehide script": PALEHIDE_SCRIPT,
-        "TrollRestore binary": TROLLRESTORE_BINARY,
     }
 
     for name, path in executable_resources.items():
@@ -162,23 +133,3 @@ def install_palera1n():
     except Exception as error:
         print(f"{RED}[!] palera1n installation error: {error}{RESET}")
         return False
-
-
-def print_resource_report():
-    print(f"{CYAN}Resources{RESET}")
-    print(f"{CYAN}---------{RESET}")
-
-    for name, path in REQUIRED_RESOURCES.items():
-        if file_exists(path):
-            print(f"{GREEN}[+] {name}: OK{RESET}")
-        else:
-            print(f"{RED}[!] {name}: Missing{RESET}")
-            print(f"    {path}")
-
-    permission_issues = check_resource_permissions()
-
-    for name, path in permission_issues:
-        print(f"{YELLOW}[!] {name}: Not executable{RESET}")
-        print(f"    chmod +x {path}")
-
-    print_palera1n_notice()
